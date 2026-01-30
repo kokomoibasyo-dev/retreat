@@ -78,7 +78,7 @@
     </div>
 
     <div class="tab-menu" id="top-tabs">
-        <button class="tab-btn active" data-tab="mi">🌿今のわたし</button>
+        <button class="tab-btn active" data-tab="mi">🌿今のあなた</button>
         <button class="tab-btn" data-tab="total" id="total-btn" disabled>📊 大切なあなたへ</button>
     </div>
 
@@ -193,7 +193,7 @@ function calcMI() {
     results.mi = { total, title, body, next };
 
     document.getElementById('mi-res').innerHTML =
-        `<h3>🌿 入口チェック：${title}</h3>` +
+        `<h3>🌿 今のあなた：${title}</h3>` +
         `<div class="analysis-card">` +
         `<span class="analysis-label">【いまの状態】</span>` +
         `<span class="analysis-text">${body}</span>` +
@@ -230,13 +230,13 @@ function generateTotalDiagnosis() {
         `ここまでたどり着いた時点で、あなたはもう十分に自分を大切にし始めています。<br>` +
         `立ち止まることは、逃げではありません。<br>` +
         `「まだ選べるうちに整える」ことは、未来の自分への贈り物です。<br><br>` +
-        `もし、一人で整理するのが少し重たいと感じたら、` +
+        `もし、一人で気持ちの整理するのが少し重たいと感じたら、` +
         `<strong>誰かと一緒に言葉にしてみる</strong>という選択肢もあります。`;
 
     document.getElementById('total-content').innerHTML = `
         <div class="analysis-card">${summaryHtml}</div>
         <div style="background: #fff5f5; border: 2px solid #ff7f7f; padding: 25px; border-radius: 25px; margin: 25px 0;">
-            <strong style="color:#ff7f7f; font-size:1.2rem;">💎 ことばの整理</strong><br><br><div style="line-height:1.8;">${translationHtml}</div>
+            <strong style="color:#ff7f7f; font-size:1.2rem;">大切なあなたへ</strong><br><br><div style="line-height:1.8;">${translationHtml}</div>
         </div>
         <div style="background: #f0f7ff; padding: 30px; border-radius: 30px; margin-top: 35px; border: 1px solid #e0f0ff;">
             <strong style="color:#4db8ff; font-size:1.2rem;">💌 あなたへ</strong><br><br><div style="line-height:1.8;">${messageHtml}</div>
