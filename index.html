@@ -1,202 +1,278 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>NERV Suno プロンプト生成システム</title>
-<style>
-:root{
-  --black:#0b0b0b;
-  --red:#d60000;
-  --yellow:#f5c400;
-  --gray:#1a1a1a;
-}
-body{
-  background:var(--black);
-  color:#eee;
-  font-family: system-ui, sans-serif;
-  max-width:960px;
-  margin:auto;
-  padding:24px;
-}
-h1{color:var(--red);}
-h2{
-  color:var(--yellow);
-  border-left:4px solid var(--red);
-  padding-left:8px;
-  margin-top:32px;
-}
-.group{margin-bottom:20px;}
-button.option{
-  background:var(--gray);
-  color:#eee;
-  border:1px solid #444;
-  padding:8px 14px;
-  margin:4px;
-  cursor:pointer;
-}
-button.option.active{background:var(--red);}
-button.create{
-  background:var(--yellow);
-  color:#000;
-  font-weight:bold;
-  padding:14px 24px;
-  border:none;
-  cursor:pointer;
-}
-button.copy{
-  background:var(--red);
-  color:#fff;
-  padding:6px 14px;
-  border:none;
-  cursor:pointer;
-  margin:6px 0;
-  font-size:12px;
-}
-textarea{
-  width:100%;
-  height:120px;
-  background:#000;
-  color:#0f0;
-  border:1px solid #333;
-  padding:10px;
-  font-family: monospace;
-}
-small{color:#aaa;}
-</style>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リトリート入口ナビ（ver.1）</title>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --mi-color: #ff7f7f;
+            --to-color: #4db8ff;
+            --bg-color: #fcf9f5; --text: #4a4a4a;
+        }
+        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--bg-color); color: var(--text); margin: 0; padding: 15px; line-height: 1.8; }
+        .container { max-width: 650px; width: 100%; margin: 20px auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(220, 180, 150, 0.15); border: 1px solid rgba(0,0,0,0.03); box-sizing: border-box;}
+        .header h1 { font-size: 1.8rem; color: #d48344; margin: 10px 0; text-align: center; }
+        
+        .no-box { background: #fff5eb; border: 1px solid #f9e2c4; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center; }
+        .intro-box { background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 20px; margin-bottom: 25px; font-size: 0.9rem; line-height: 1.6; }
 
+        .tab-menu { display: flex; gap: 8px; margin: 20px 0; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { flex: 1; min-width: 120px; padding: 12px 5px; border: none; border-radius: 16px; cursor: pointer; font-weight: bold; background: #f0f0f0; transition: all 0.2s ease; font-family: inherit; font-size: 0.85rem; color: #999; }
+        .tab-btn.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tab-btn[data-tab="mi"].active { background: var(--mi-color); }
+        .tab-btn[data-tab="total"].active { background: var(--to-color); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .q-block { margin-bottom: 20px; padding: 20px; border-radius: 20px; background: #fff; border: 1px solid #f0f0f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .q-text { font-weight: bold; font-size: 1rem; margin-bottom: 18px; display: block; color: #333; line-height: 1.5; }
+        .radio-group { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .radio-label { text-align: center; font-size: 0.65rem; cursor: pointer; padding: 8px 4px; border-radius: 12px; border: 1px solid #eee; background: #fafafa; }
+        .radio-label input { width: 20px; height: 20px; margin-bottom: 5px; }
+        
+        .btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-decoration: none; display: inline-block; text-align: center; box-sizing: border-box; }
+        
+        .res-area { margin-top: 25px; padding: 25px; border-radius: 25px; display: none; background: #fff; border-top: 8px solid; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .res-area h3 { color: #333; margin-top: 0; }
+        
+        .analysis-card { background: #fdfdfd; padding: 20px; border-radius: 20px; border: 1px solid #f0f0f0; margin-bottom: 15px; }
+        .analysis-label { font-weight: bold; color: #d48344; margin-bottom: 5px; display: block; font-size: 0.9rem; }
+        .analysis-text { font-size: 0.95rem; line-height: 1.7; margin-bottom: 15px; display: block; }
+
+        #capture-container { 
+            width: 1200px; 
+            background: #fcf9f5; position: absolute; left: -9999px; 
+            padding: 50px; box-sizing: border-box; display: flex; flex-direction: column; gap: 30px;
+        }
+        .cap-row { display: flex; gap: 30px; align-items: stretch; }
+        .cap-col { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+        .cap-box { border: 2px solid #eee; border-radius: 35px; padding: 35px; background: white; box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .cap-title { font-size: 28px; font-weight: bold; margin-bottom: 20px; color: #d48344; border-bottom: 4px solid #f9e2c4; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .cap-text { font-size: 19px; line-height: 1.8; color: #4a4a4a; }
+
+        @media print { .tab-menu, .btn { display: none !important; } }
+    </style>
+</head>
 <body>
 
-<h1>NERV / Suno プロンプト生成システム</h1>
-<small>SEO × 用途特化 × 失敗しないBGM設計</small>
+<div class="container">
+    <div class="header"><h1>🌿 リトリート入口ナビ</h1></div>
+    
+    <div class="no-box">
+        <strong style="color: #e67e22; font-size: 1rem; display: block; margin-bottom: 8px;">🛡️ 安心してお使いいただくために</strong>
+        <div style="display: flex; justify-content: space-around; font-size: 0.75rem;">
+            <span>❌ 診断じゃない</span><span>❌ 断定しない</span><span>❌ 申し込みを迫らない</span>
+        </div>
+    </div>
 
-<!-- プリセット -->
-<div class="group">
-<h2>用途プリセット</h2>
-<button class="option" data-preset="education">🎓 教育</button>
-<button class="option" data-preset="explainer">🧠 解説</button>
-<button class="option" data-preset="business">🏢 企業</button>
+    <div class="intro-box">
+        🕊️ <strong>このツールの目的</strong><br>
+        忙しい日々の中で、「今の自分はどこに立っているか」をそっと確かめるための<strong>整理ナビ</strong>です。結果は答えではなく、気づきのきっかけとしてお使いください。<br><br>
+        📌 <strong>所要時間の目安：1分</strong><br>
+        どれか一つでも「近い」と感じたら、それだけで十分です。無理に当てはめなくて大丈夫です。
+    </div>
+
+    <div class="tab-menu" id="top-tabs">
+        <button class="tab-btn active" data-tab="mi">🌿入口チェック</button>
+        <button class="tab-btn" data-tab="total" id="total-btn" disabled>📊 まとめ</button>
+    </div>
+
+    <div id="mi" class="tab-content active">
+        <div id="mi-q"></div>
+        <button class="btn" style="background:var(--mi-color)" onclick="calcMI()">今の状態を言葉にする 🔍</button>
+        <div id="mi-res" class="res-area" style="border-color:var(--mi-color)"></div>
+    </div>
+
+    <div id="total" class="tab-content">
+        <div id="total-content"></div>
+        <button class="btn" style="background:var(--to-color)" onclick="saveAsImage()">📸 画像で保存する</button>
+    </div>
+
+    <!-- 公式LINE導線（最下部） -->
+    <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+        <!-- TODO: 下のURLをあなたの「公式LINE」のURLに置き換えてください -->
+        <a class="btn" style="background:#06C755;" href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener">
+            💬 公式LINEで相談する
+        </a>
+        <div style="font-size:0.8rem; color:#888; text-align:center; margin-top:10px;">
+            ※「相談する」は購入を意味しません。今の状態を一緒に整理するための入口です。
+        </div>
+    </div>
 </div>
 
-<div class="group">
-<h2>主な用途</h2>
-<button class="option" data-use="educational videos">教育動画</button>
-<button class="option" data-use="explainer videos">解説動画</button>
-<button class="option" data-use="corporate videos">企業動画</button>
+<div id="capture-container">
+    <div class="cap-box" style="background:#fffcf5;">
+        <div class="cap-title">🤝 いまの自分へのメモ</div>
+        <div id="cap-summary" class="cap-text"></div>
+    </div>
+    <div class="cap-row">
+        <div class="cap-col">
+            <div class="cap-box" style="background:#fff5f5; border-color:#ff7f7f; height: 100%;">
+                <div class="cap-title" style="color:#ff7f7f;">💎 ことばの整理</div>
+                <div id="cap-translation" class="cap-text"></div>
+            </div>
+        </div>
+        <div class="cap-col">
+            <div class="cap-box" style="background:#f0f7ff; border-color:#4db8ff; height: 100%;">
+                <div class="cap-title" style="color:#4db8ff;">💌 あなたへ</div>
+                <div id="cap-message" class="cap-text"></div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div class="group">
-<h2>刺激レベル</h2>
-<button class="option" data-stim="very low">極低</button>
-<button class="option" data-stim="low">低</button>
-<button class="option" data-stim="medium">中</button>
-</div>
-
-<div class="group">
-<h2>曲の長さ</h2>
-<button class="option" data-length="30 seconds">30秒</button>
-<button class="option" data-length="2 minutes">2分</button>
-<button class="option" data-length="3 minutes">3分</button>
-</div>
-
-<div class="group">
-<h2>概要文の言語</h2>
-<button class="option" data-lang="en">英語</button>
-<button class="option" data-lang="jp">日本語</button>
-</div>
-
-<button class="create" onclick="createAll()">生成する</button>
-
-<!-- SEO -->
-<h2>SEOキーワード</h2>
-<button class="copy" onclick="copyText('seo')">コピー</button>
-<textarea id="seo"></textarea>
-
-<!-- Suno -->
-<h2>Suno用プロンプト</h2>
-<button class="copy" onclick="copyText('suno')">コピー</button>
-<textarea id="suno"></textarea>
-
-<!-- Title -->
-<h2>SEOタイトル</h2>
-<button class="copy" onclick="copyText('title')">コピー</button>
-<textarea id="title"></textarea>
-
-<!-- Description -->
-<h2>SEO概要文</h2>
-<button class="copy" onclick="copyText('desc')">コピー</button>
-<textarea id="desc"></textarea>
 
 <script>
-let state={};
+// --- データ定義（リトリート版 ver.1：入口5問） ---
+const miData = [
+    {c:"入口", q:"何かを決めるとき、「考えているのに進まない」感じがある"},
+    {c:"入口", q:"休んでいるはずなのに、回復した実感があまりない"},
+    {c:"入口", q:"誰かに弱音を吐くより、自分でなんとかしようとすることが多い"},
+    {c:"入口", q:"最近、「このままでいいのかな」がふと浮かぶ"},
+    {c:"入口", q:"頑張っている自覚はあるが、それをちゃんと労えていない気がする"}
+];
 
-document.querySelectorAll('.option').forEach(btn=>{
-  btn.onclick=()=>{
-    const group=btn.parentElement;
-    group.querySelectorAll('.option').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    Object.assign(state,btn.dataset);
-  }
-});
+// --- ロジック部分 ---
+function autoScroll(el) { 
+    const b = el.closest('.q-block').nextElementSibling; 
+    if (b && b.classList.contains('q-block')) setTimeout(() => b.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); 
+}
+function create5Scale(name) { 
+    return `<div class="radio-group">${['とても<br>近い','少し<br>近い','どちら<br>とも','あまり<br>ない','ない'].map((l,i)=>`<label class="radio-label"><input type="radio" name="${name}" value="${4-i}" onclick="autoScroll(this)">${l}</label>`).join('')}</div>`; 
+}
 
-function createAll(){
-  const preset=state.preset||"explainer";
-  const use=state.use||"explainer videos";
-  const stim=state.stim||"low";
-  const len=state.length||"2 minutes";
-  const lang=state.lang||"en";
+function setup() {
+    const target = document.getElementById('mi-q');
+    target.innerHTML = '';
+    miData.forEach((d,i)=> {
+        target.innerHTML += `<div class="q-block"><span class="q-text">${i+1}. ${d.q}</span>${create5Scale('mi'+i)}</div>`;
+    });
+}
+setup();
 
-  const keywordMap={
-    education:{
-      primary:"educational background music",
-      secondary:"background music for learning videos",
-      longtail:"background music for educational explainer videos"
-    },
-    explainer:{
-      primary:"narration safe background music",
-      secondary:"background music for explainer videos",
-      longtail:"background music for voice over videos"
-    },
-    business:{
-      primary:"corporate background music",
-      secondary:"background music for business videos",
-      longtail:"background music for professional presentations"
+let results = { mi:null };
+
+function calcMI() {
+    let total = 0;
+    miData.forEach((d,i) => {
+        total += parseInt(document.querySelector(`input[name="mi${i}"]:checked`)?.value || 0);
+    });
+
+    // 0〜20点（5問×0〜4）
+    let title = "";
+    let body = "";
+    let next = "";
+
+    if (total <= 8) {
+        title = "走りながら考えている状態かもしれません";
+        body =
+            "今のあなたは、止まらずに進みながら、同時に考え続けている状態かもしれません。<br>" +
+            "このタイプの人は、責任感が強く、周囲に合わせられ、限界まで我慢できてしまう「強さ」を持っています。";
+        next =
+            "もし最近、決断が遅れたり、休んでも回復しない感覚があるなら、<strong>予定を足す</strong>より、<strong>余白を少し作る</strong>ほうが整いが戻りやすいことがあります。";
+    } else if (total <= 14) {
+        title = "少し立ち止まりたいサインが出ている状態かもしれません";
+        body =
+            "前に進む力はあるけれど、少しペースを緩めたほうが選択がしやすくなる時期かもしれません。<br>" +
+            "これは弱さではなく、<strong>調整が必要になったサイン</strong>です。";
+        next =
+            "今は「気合いで乗り切る」より、<strong>環境を変えて整える</strong>ほうが回復が早いことがあります。";
+    } else {
+        title = "感覚を取り戻す余白が必要な状態かもしれません";
+        body =
+            "頭では考えているのに、感覚の声が少し遠くなっている可能性があります。<br>" +
+            "情報を増やすより、<strong>環境を変える</strong>ことで気づきが戻りやすい状態です。";
+        next =
+            "「まだ大丈夫」と言い続けられる人ほど、立ち止まるタイミングを逃しやすいです。<strong>今のうちに整える</strong>のは、とても賢い選択です。";
     }
-  };
 
-  const k=keywordMap[preset];
+    results.mi = { total, title, body, next };
 
-  document.getElementById("seo").value=
-`Primary: ${k.primary}
-Secondary: ${k.secondary}
-Long-tail: ${k.longtail}`;
+    document.getElementById('mi-res').innerHTML =
+        `<h3>🌿 入口チェック：${title}</h3>` +
+        `<div class="analysis-card">` +
+        `<span class="analysis-label">【いまの状態】</span>` +
+        `<span class="analysis-text">${body}</span>` +
+        `<span class="analysis-label">【次の一手のヒント】</span>` +
+        `<span class="analysis-text">${next}</span>` +
+        `</div>`;
 
-  document.getElementById("suno").value=
-`Ambient background music designed not to interfere with ${use}.
-Minimal melody, ${stim} stimulation.
-No vocals, no strong rhythm.
-Neutral tone.
-Safe for professional use.
-Duration: ${len}.`;
-
-  document.getElementById("title").value=
-`${k.primary} for ${use} (${len})`;
-
-  document.getElementById("desc").value=
-lang==="jp"
-?`このBGMは${use}向けに設計されています。
-音声や字幕を邪魔しない、安全で実務向けの背景音です。`
-:`This background music is designed for ${use}.
-It stays behind voice and text and avoids audio interference.`;
+    document.getElementById('mi-res').style.display = 'block';
+    checkReady();
 }
 
-function copyText(id){
-  const el=document.getElementById(id);
-  el.select();
-  navigator.clipboard.writeText(el.value);
-  alert("コピーしました");
+function checkReady() { 
+    if(results.mi) {
+        document.querySelectorAll('button[data-tab="total"]').forEach(b => b.disabled = false);
+    }
 }
+
+function generateTotalDiagnosis() {
+    if (!results.mi) return;
+
+    const summaryHtml = `
+        <div style="margin-bottom:20px; border-left:8px solid var(--mi-color); padding-left:15px;">
+            <strong style="font-size:1.2rem;">いまの状態：${results.mi.title}</strong><br>
+            <span style="font-size:0.95rem;">スコア目安：${results.mi.total} / 20（※答えではなく、今の位置のメモです）</span>
+        </div>`;
+
+    const translationHtml =
+        `この結果は「当てる」ためのものではありません。<br>` +
+        `あなたの中にある<strong>調整のサイン</strong>を、いまの言葉に置き換えたものです。<br><br>` +
+        `<strong>いまの状態</strong>：${results.mi.body}<br><br>` +
+        `<strong>次の一手のヒント</strong>：${results.mi.next}`;
+
+    const messageHtml =
+        `ここまでたどり着いた時点で、あなたはもう十分に自分を大切にし始めています。<br>` +
+        `立ち止まることは、逃げではありません。<br>` +
+        `「まだ選べるうちに整える」ことは、未来の自分への贈り物です。<br><br>` +
+        `もし、一人で整理するのが少し重たいと感じたら、` +
+        `<strong>誰かと一緒に言葉にしてみる</strong>という選択肢もあります。`;
+
+    document.getElementById('total-content').innerHTML = `
+        <div class="analysis-card">${summaryHtml}</div>
+        <div style="background: #fff5f5; border: 2px solid #ff7f7f; padding: 25px; border-radius: 25px; margin: 25px 0;">
+            <strong style="color:#ff7f7f; font-size:1.2rem;">💎 ことばの整理</strong><br><br><div style="line-height:1.8;">${translationHtml}</div>
+        </div>
+        <div style="background: #f0f7ff; padding: 30px; border-radius: 30px; margin-top: 35px; border: 1px solid #e0f0ff;">
+            <strong style="color:#4db8ff; font-size:1.2rem;">💌 あなたへ</strong><br><br><div style="line-height:1.8;">${messageHtml}</div>
+        </div>`;
+
+    document.getElementById('cap-summary').innerHTML = summaryHtml;
+    document.getElementById('cap-translation').innerHTML = translationHtml;
+    document.getElementById('cap-message').innerHTML = messageHtml;
+}
+
+function saveAsImage() {
+    const area = document.getElementById('capture-container');
+    html2canvas(area, { scale: 2, backgroundColor: "#fcf9f5", windowWidth: 1200 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'リトリート入口メモ.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const targetTab = btn.dataset.tab;
+
+        // disabledボタンは何もしない
+        if (btn.disabled) return;
+
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll(`.tab-btn[data-tab="${targetTab}"]`).forEach(b => b.classList.add('active'));
+        document.getElementById(targetTab).classList.add('active');
+
+        if(targetTab === 'total') generateTotalDiagnosis();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+});
 </script>
-
 </body>
 </html>
