@@ -95,7 +95,13 @@
 
     <!-- 公式LINE導線（最下部） -->
     <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-        <button class="btn" style="background:var(--to-color)" onclick="openTotalMessage()">💌 大切なあなたへのメッセージ</button>
+        <button class="btn" style="background:var(--to-color)" onclick="openTotal()">
+            💌 大切なあなたへのメッセージ
+        </button>
+
+        <div style="font-size:0.8rem; color:#888; text-align:center; margin-top:10px;">
+            ※この結果は申し込み判定ではありません。必要がなければ何もする必要はありません。
+        </div>
 
         <!-- TODO: 下のURLをあなたの「公式LINE」のURLに置き換えてください -->
         <a class="btn" style="background:#06C755;" href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener">
@@ -129,13 +135,16 @@
 </div>
 
 <script>
-// --- データ定義（リトリート版 ver.1：入口5問） ---
+// --- データ定義（リトリート版 ver.1：入口7問） ---
+// reverse:true の設問は「近い」ほどスコアが下がる（逆転項目）
 const miData = [
     {c:"入口", q:"何かを決めるとき、「考えているのに進まない」感じがある"},
     {c:"入口", q:"休んでいるはずなのに、回復した実感があまりない"},
     {c:"入口", q:"誰かに弱音を吐くより、自分でなんとかしようとすることが多い"},
     {c:"入口", q:"最近、「このままでいいのかな」がふと浮かぶ"},
-    {c:"入口", q:"頑張っている自覚はあるが、それをちゃんと労えていない気がする"}
+    {c:"入口", q:"頑張っている自覚はあるが、それをちゃんと労えていない気がする"},
+    {c:"入口", q:"最近、自然に呼吸が深くなる瞬間（安心・落ち着き）があった", reverse:true},
+    {c:"入口", q:"休むと少し回復する感覚（眠る・散歩・湯船など）が残っている", reverse:true}
 ];
 
 // --- ロジック部分 ---
@@ -160,36 +169,51 @@ let results = { mi:null };
 
 function calcMI() {
     let total = 0;
+
     miData.forEach((d,i) => {
-        total += parseInt(document.querySelector(`input[name="mi${i}"]:checked`)?.value || 0);
+        const v = parseInt(document.querySelector(`input[name="mi${i}"]:checked`)?.value || 0);
+        total += d.reverse ? (4 - v) : v;
     });
 
-    // 0〜20点（5問×0〜4）
+    // 0〜28点（7問×0〜4 / 逆転含む）
     let title = "";
     let body = "";
     let next = "";
 
-    if (total <= 8) {
-        title = "走りながら考えている状態かもしれません";
+    // 「1週間の小さな習慣」提案（共通の型として使う）
+    const weekHabits =
+        "【1週間の小さな習慣（できるものを1つでOK）】<br>" +
+        "① 1日1回、深呼吸を3回（肩の力を抜く）<br>" +
+        "② 夜、スマホを置いて“1分だけ”目を閉じる<br>" +
+        "③ 湯船 or ぬるめのシャワーで「温める」<br>" +
+        "④ 散歩1分でもOK（外の空気を吸う）<br>" +
+        "⑤ 『今日できたこと』を1行メモ（小さくてOK）";
+
+    if (total <= 9) {
+        title = "今のままで大丈夫。自分を大切にできています";
         body =
-            "今のあなたは、止まらずに進みながら、同時に考え続けている状態かもしれません。<br>" +
-            "このタイプの人は、責任感が強く、周囲に合わせられ、限界まで我慢できてしまう「強さ」を持っています。";
+            "今のあなたは、大きく崩れていない可能性が高いです。<br>" +
+            "「整える」ことは、特別な何かを足すことだけではありません。<br>" +
+            "すでにあなたは、日常の中で回復の芽を育てています。素敵です。";
         next =
-            "もし最近、決断が遅れたり、休んでも回復しない感覚があるなら、<strong>予定を足す</strong>より、<strong>余白を少し作る</strong>ほうが整いが戻りやすいことがあります。";
-    } else if (total <= 14) {
+            weekHabits + "<br><br>" +
+            "もし「もう少し自分で整える方法」を具体的に知りたい場合は、下の「自分で整える（PDF）」をどうぞ。必要がなければ、ここで終わってOKです。";
+    } else if (total <= 18) {
         title = "少し立ち止まりたいサインが出ている状態かもしれません";
         body =
             "前に進む力はあるけれど、少しペースを緩めたほうが選択がしやすくなる時期かもしれません。<br>" +
             "これは弱さではなく、<strong>調整が必要になったサイン</strong>です。";
         next =
-            "今は「気合いで乗り切る」より、<strong>環境を変えて整える</strong>ほうが回復が早いことがあります。";
+            weekHabits + "<br><br>" +
+            "今は「気合いで乗り切る」より、<strong>整いやすい形に変える</strong>ほうが回復が早いことがあります。";
     } else {
         title = "感覚を取り戻す余白が必要な状態かもしれません";
         body =
             "頭では考えているのに、感覚の声が少し遠くなっている可能性があります。<br>" +
             "情報を増やすより、<strong>環境を変える</strong>ことで気づきが戻りやすい状態です。";
         next =
-            "「まだ大丈夫」と言い続けられる人ほど、立ち止まるタイミングを逃しやすいです。<strong>今のうちに整える</strong>と少しラクになるかもしれません。ちょっと相談してみませんか？";
+            weekHabits + "<br><br>" +
+            "「まだ大丈夫」と言い続けられる人ほど、立ち止まるタイミングを逃しやすいです。<strong>今のうちに整える</strong>と少しラクになるかもしれません。";
     }
 
     results.mi = { total, title, body, next };
@@ -216,10 +240,12 @@ function checkReady() {
 function generateTotalDiagnosis() {
     if (!results.mi) return;
 
+    const maxScore = 28;
+
     const summaryHtml = `
         <div style="margin-bottom:20px; border-left:8px solid var(--mi-color); padding-left:15px;">
             <strong style="font-size:1.2rem;">いまの状態：${results.mi.title}</strong><br>
-            <span style="font-size:0.95rem;">スコア目安：${results.mi.total} / 20（※答えではなく、今の位置のメモです）</span>
+            <span style="font-size:0.95rem;">スコア目安：${results.mi.total} / ${maxScore}（※答えではなく、今の位置のメモです）</span>
         </div>`;
 
     const translationHtml =
@@ -232,17 +258,40 @@ function generateTotalDiagnosis() {
         `ここまでたどり着いた時点で、あなたはもう十分に自分を大切にし始めています。<br>` +
         `立ち止まることは、逃げではありません。<br>` +
         `「まだ選べるうちに整える」ことは、未来の自分への贈り物です。<br><br>` +
-        `もし、一人で気持ちの整理するのが少し重たいと感じたら、` +
-        `<strong>誰かと一緒に言葉にしてみる</strong>という選択肢もあります。`;
+        `必要なら、あなたのペースで選んでください。`;
 
     document.getElementById('total-content').innerHTML = `
         <div class="analysis-card">${summaryHtml}</div>
+
+        <div style="font-size:0.85rem; color:#888; text-align:center; margin: 10px 0 15px;">
+            ※この結果は申し込み判定ではありません。必要がなければ何もする必要はありません。
+        </div>
+
         <div style="background: #fff5f5; border: 2px solid #ff7f7f; padding: 25px; border-radius: 25px; margin: 25px 0;">
             <strong style="color:#ff7f7f; font-size:1.2rem;">大切なあなたへ</strong><br><br><div style="line-height:1.8;">${translationHtml}</div>
         </div>
+
         <div style="background: #f0f7ff; padding: 30px; border-radius: 30px; margin-top: 35px; border: 1px solid #e0f0ff;">
             <strong style="color:#4db8ff; font-size:1.2rem;">💌 あなたへ</strong><br><br><div style="line-height:1.8;">${messageHtml}</div>
-        </div>`;
+        </div>
+
+        <div style="margin-top: 20px;">
+            <!-- TODO: 下のURLを講師が作った「自分で整える方法（PDF）」のURLに置き換えてください -->
+            <a class="btn" style="background:#FF9F43;" href="https://example.com/your-selfcare.pdf" target="_blank" rel="noopener">
+                📘 自分で整える（PDF）
+            </a>
+
+            <!-- TODO: 下のURLをあなたの「公式LINE」のURLに置き換えてください -->
+            <a class="btn" style="background:#06C755;" href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener">
+                💬 誰かに話して整理する（公式LINEで無料相談）
+            </a>
+
+            <!-- TODO: 下のURLを「リトリート詳細ページ」のURLに置き換えてください -->
+            <a class="btn" style="background:#5D5FEF;" href="https://example.com/retreat-detail" target="_blank" rel="noopener">
+                🌿 環境から離れて整える（リトリート詳細へ）
+            </a>
+        </div>
+    `;
 
     document.getElementById('cap-summary').innerHTML = summaryHtml;
     document.getElementById('cap-translation').innerHTML = translationHtml;
@@ -259,11 +308,18 @@ function saveAsImage() {
     });
 }
 
-function openTotalMessage() {
+function openTotal() {
+    // 結果が未計算なら、計算を促す（ここではタブ移動のみ）
     if (!results.mi) {
-        alert('先に「今のわたしを言葉にする 🔍」を押して、結果を表示してください。');
+        // 未計算のままでもタブ表示は可能だが、中身がないので先に計算を促すためmiへ戻す
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll(`.tab-btn[data-tab="mi"]`).forEach(b => b.classList.add('active'));
+        document.getElementById('mi').classList.add('active');
+        window.scrollTo({top: 0, behavior: 'smooth'});
         return;
     }
+
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll(`.tab-btn[data-tab="total"]`).forEach(b => b.classList.add('active'));
