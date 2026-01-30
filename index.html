@@ -94,6 +94,25 @@
         <div id="mi-q"></div>
         <button class="btn" style="background:var(--mi-color)" onclick="calcMI()">今のわたしを言葉にする 🔍</button>
         <div id="mi-res" class="res-area" style="border-color:var(--mi-color)"></div>
+
+        <!-- ▼▼ 追加：今のあなたタブにも3つの導線ボタン ▼▼ -->
+        <div style="margin-top: 20px;" class="choice-actions">
+            <!-- TODO: 下のURLを講師が作った「自分で整える方法（PDF）」のURLに置き換えてください -->
+            <a class="btn" style="background:#FF9F43;" href="https://example.com/your-selfcare.pdf" target="_blank" rel="noopener">
+                📘 自分で整える（PDF）
+            </a>
+
+            <!-- TODO: 下のURLをあなたの「公式LINE」のURLに置き換えてください -->
+            <a class="btn" style="background:#06C755;" href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener">
+                💬 誰かに話して整理する（公式LINEで無料相談）
+            </a>
+
+            <!-- TODO: 下のURLを「リトリート詳細ページ」のURLに置き換えてください -->
+            <a class="btn" style="background:#5D5FEF;" href="https://example.com/retreat-detail" target="_blank" rel="noopener">
+                🌿 環境から離れて整える（リトリート詳細へ）
+            </a>
+        </div>
+        <!-- ▲▲ 追加ここまで ▲▲ -->
     </div>
 
     <div id="total" class="tab-content">
@@ -205,7 +224,7 @@ function calcMI() {
             "すでにあなたは、日常の中で回復の芽を育てています。素敵です。";
         next =
             weekHabits + "<br><br>" +
-            "もし「もう少し自分で整える方法」を具体的に知りたい場合は、下の「大切なあなたへのメッセージ」から「自分で整える（PDF）」をどうぞ。必要がなければ、ここで終わってOKです。";
+            "もし「もう少し自分で整える方法」を具体的に知りたい場合は、下の「自分で整える（PDF）」をどうぞ。必要がなければ、ここで終わってOKです。";
     } else if (total <= 18) {
         title = "少し立ち止まりたいサインが出ている状態かもしれません";
         body =
