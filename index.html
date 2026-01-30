@@ -78,13 +78,13 @@
     </div>
 
     <div class="tab-menu" id="top-tabs">
-        <button class="tab-btn active" data-tab="mi">🌿入口チェック</button>
-        <button class="tab-btn" data-tab="total" id="total-btn" disabled>📊 まとめ</button>
+        <button class="tab-btn active" data-tab="mi">🌿今のわたし</button>
+        <button class="tab-btn" data-tab="total" id="total-btn" disabled>📊 大切なあなたへ</button>
     </div>
 
     <div id="mi" class="tab-content active">
         <div id="mi-q"></div>
-        <button class="btn" style="background:var(--mi-color)" onclick="calcMI()">今の状態を言葉にする 🔍</button>
+        <button class="btn" style="background:var(--mi-color)" onclick="calcMI()">今のわたしを言葉にする 🔍</button>
         <div id="mi-res" class="res-area" style="border-color:var(--mi-color)"></div>
     </div>
 
@@ -97,10 +97,10 @@
     <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
         <!-- TODO: 下のURLをあなたの「公式LINE」のURLに置き換えてください -->
         <a class="btn" style="background:#06C755;" href="https://line.me/R/ti/p/@YOUR_LINE_ID" target="_blank" rel="noopener">
-            💬 公式LINEで相談する
+            💬 公式LINEで無料相談する
         </a>
         <div style="font-size:0.8rem; color:#888; text-align:center; margin-top:10px;">
-            ※「相談する」は購入を意味しません。今の状態を一緒に整理するための入口です。
+            ※「無料相談する」は何かを売ったりしません。今の状態を一緒に整理するためのきっかけです。
         </div>
     </div>
 </div>
@@ -113,13 +113,13 @@
     <div class="cap-row">
         <div class="cap-col">
             <div class="cap-box" style="background:#fff5f5; border-color:#ff7f7f; height: 100%;">
-                <div class="cap-title" style="color:#ff7f7f;">💎 ことばの整理</div>
+                <div class="cap-title" style="color:#ff7f7f;">あなたはきっとこんな状態</div>
                 <div id="cap-translation" class="cap-text"></div>
             </div>
         </div>
         <div class="cap-col">
             <div class="cap-box" style="background:#f0f7ff; border-color:#4db8ff; height: 100%;">
-                <div class="cap-title" style="color:#4db8ff;">💌 あなたへ</div>
+                <div class="cap-title" style="color:#4db8ff;">💌 大切なあなたへ</div>
                 <div id="cap-message" class="cap-text"></div>
             </div>
         </div>
